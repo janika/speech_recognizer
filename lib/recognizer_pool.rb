@@ -1,4 +1,7 @@
 module RecognizerPool
+  MAX_IDLE_RECOGNIZERS = 2
+  NUMBER_OF_INITIAL_RECOGNIZERS = 1
+  MAX_RECOGNIZERS = 5
   
   def self.pool
     $recognizer_pool
@@ -13,9 +16,33 @@ module RecognizerPool
     end
   end
   
-  def self.add_new_to_pool(session)
-    recognizer = SpeechRecognition::Recognizer.new
-    recognizer.clear
-    pool[session.id] = recognizer
+  def self.add_new_to_active_pool(session)
+    recognizer = get_recognizer
+    if recognizer.present?
+      recognizer.clear
+      pool[session.id] = recognizer
+    else
+      raise "No free recognizers"
+    end
+  end
+  
+  def self.get_recognizer
+    if pool[:idle].size > 0
+      pool[:idle].pop
+    elsif (pool.size - 1) < MAX_RECOGNIZERS
+      SpeechRecognition::Recognizer.new
+    end
+  end
+  
+  def self.collect_idle
+    pool.each do |session_id, recognizer|
+      if session_id != :idle
+        recognizer_session = RecognizerSession.find_by_id(session_id.to_i)
+        if recognizer_session.closed
+          pool[:idle] << recognizer if (pool[:idle].size < MAX_IDLE_RECOGNIZERS)
+          pool.delete(session_id)
+        end
+      end
+    end
   end
 end

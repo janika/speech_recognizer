@@ -3,7 +3,7 @@ class RecognizerController < ApplicationController
   
   def create 
     new_session = RecognizerSession.create
-    RecognizerPool.add_new_to_pool(new_session)
+    RecognizerPool.add_new_to_active_pool(new_session)
     render :xml => new_session.to_xml
   end
   
