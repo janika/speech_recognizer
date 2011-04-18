@@ -1,0 +1,2 @@
+
+ $recognizer_pool = {}

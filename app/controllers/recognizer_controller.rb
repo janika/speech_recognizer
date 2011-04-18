@@ -2,8 +2,9 @@ class RecognizerController < ApplicationController
   skip_before_filter :verify_authenticity_token
   
   def create 
-    result = RecognizerSession.create
-    render :xml => result.to_xml
+    new_session = RecognizerSession.create
+    RecognizerPool.add_new_to_pool(new_session)
+    render :xml => new_session.to_xml
   end
   
   def update
@@ -12,11 +13,12 @@ class RecognizerController < ApplicationController
       file = "#{Rails.root}/tmp/#{params[:file].original_filename}"
       File.open(file, 'wb') do |f|
         f.write params[:file].read
-      end    
-      SpeechRecognition.delay.recognize_file(file, session)
-      render :xml => {:message => "Files sent"}
+      end
+      recognizer = RecognizerPool.get_for_session(session.id)
+      recognizer.work_with_file(file, session)
+      render :xml => session.to_xml
     else
-      render :xml => {:error => "No file or session present"}
+      render :xml => {:error => "No file or session present", :root => "message"}
     end
   end
   

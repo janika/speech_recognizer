@@ -39,5 +39,6 @@ module SpeechRec
     # Configure sensitive parameters which will be filtered from the log file.
     config.filter_parameters += [:password]
     require 'speech_recognition'
+    require "recognizer_pool"
   end
 end
