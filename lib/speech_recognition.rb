@@ -28,12 +28,12 @@ module SpeechRecognition
       @appsrc.set_property("caps", caps)
       
       # define behaviour for ASR output
-      asr = @pipeline.get_child("asr")
-      asr.signal_connect('partial_result') { |asr, text, uttid| 
+      @asr = @pipeline.get_child("asr")
+      @asr.signal_connect('partial_result') { |asr, text, uttid| 
         #puts "PARTIAL: " + text 
         @result = text 
       }
-      asr.signal_connect('result') { |asr, text, uttid| 
+      @asr.signal_connect('result') { |asr, text, uttid| 
         #puts "FINAL: " + text 
         @result = text  
         @queue.push(1)
@@ -43,7 +43,7 @@ module SpeechRecognition
       @queue = Queue.new
       
       # This returns when ASR engine has been fully loaded
-      asr.set_property('configured', true)
+      @asr.set_property('configured', true)
       #@pipeline.pause
       end
       
