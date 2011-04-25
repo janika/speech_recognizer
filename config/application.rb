@@ -1,6 +1,8 @@
 require File.expand_path('../boot', __FILE__)
+require 'action_controller/railtie'
 
-require 'rails/all'
+require 'active_resource/railtie'
+
 
 # If you have a Gemfile, require the gems listed there, including any gems
 # you've limited to :test, :development, or :production.
@@ -31,14 +33,15 @@ module SpeechRec
     # config.i18n.default_locale = :de
 
     # JavaScript files you want as :defaults (application.js is always included).
-    config.action_view.javascript_expansions[:defaults] = %w()
+    #config.action_view.javascript_expansions[:defaults] = %w()
 
     # Configure the default encoding used in templates for Ruby 1.9.
-    config.encoding = "utf-8"
+    #config.encoding = "utf-8"
 
     # Configure sensitive parameters which will be filtered from the log file.
-    config.filter_parameters += [:password]
+    #config.filter_parameters += [:password]
     require 'speech_recognition'
     require "recognizer_pool"
+    require "session_pool"
   end
 end

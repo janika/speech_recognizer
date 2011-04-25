@@ -1,6 +1,3 @@
-require 'gst'
-Gst.init
-
 module SpeechRecognition
   BUFFER_SIZE = 2*16000
   def self.recognize_file(file, session)
@@ -9,18 +6,18 @@ module SpeechRecognition
     File.open(file, "r") do |f|
       while buff = f.read(BUFFER_SIZE)
         rec.feed_data(buff)
-        session.update_attribute(:result, rec.result)
+        session.result =  rec.result
       end
     end
     
     rec.feed_end
     result = rec.wait_final_result
-    session.update_attributes(:result => result, :closed => true)
+    session.result = result
+    session.closed_at = Time.now
   end
-
   
   class Recognizer
-    def initialize
+    def initialize()
       @result = ""
       # construct pipeline
       @pipeline = Gst::Parse.launch("appsrc name=appsrc ! audioconvert ! audioresample ! pocketsphinx name=asr ! fakesink")
@@ -56,7 +53,7 @@ module SpeechRecognition
     end
       
       # Call this before starting a new recognition
-      def clear
+      def clear()
         @result = ""
         @queue.clear
         @pipeline.pause
@@ -71,29 +68,30 @@ module SpeechRecognition
     end
     
     # Notify recognizer of utterance end
-    def feed_end
-      @appsrc.end_of_stream
+    def feed_end()
+      @appsrc.end_of_stream()
     end
     
     # Wait for the recognizer to recognize the current utterance
     # Returns the final recognition result
-    def wait_final_result
+    def wait_final_result()
       @queue.pop
       @pipeline.stop
       return @result
     end
-    
+        
     def work_with_file(file, session)
       File.open(file, "r") do |f|
         while buff = f.read(BUFFER_SIZE)
           feed_data(buff)
-          session.update_attribute(:result, self.result)
+          session.result =  self.result
         end
       end
       
-      #feed_end
-      #wait_final_result
-      #session.update_attributes(:result => self.result)
+      feed_end
+      wait_final_result
+      session.result = self.result
+      session.closed_at = Time.now
     end
   end
 end

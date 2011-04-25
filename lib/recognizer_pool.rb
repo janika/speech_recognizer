@@ -12,14 +12,13 @@ module RecognizerPool
     if recognizer.present?
       return recognizer
     else
-      raise "Missing recognizer"   
+      raise "Recognizer not found"   
     end
   end
   
   def self.add_new_to_active_pool(session)
     recognizer = get_recognizer
     if recognizer.present?
-      recognizer.clear
       pool[session.id] = recognizer
     else
       raise "No free recognizers"
@@ -37,8 +36,8 @@ module RecognizerPool
   def self.collect_idle
     pool.each do |session_id, recognizer|
       if session_id != :idle
-        recognizer_session = RecognizerSession.find_by_id(session_id.to_i)
-        if recognizer_session.closed
+        recognizer_session = SessionPool.find_by_id(session_id)
+        if recognizer_session.closed?
           pool[:idle] << recognizer if (pool[:idle].size < MAX_IDLE_RECOGNIZERS)
           pool.delete(session_id)
         end
