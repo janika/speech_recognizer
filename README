@@ -1,10 +1,12 @@
-Using pocketsphinx, Gst
+Using pocketsphinx, Gst, Rails 3, ruby 1.8.7 (gst not working with ruby 1.9)
+To start the server got to the project root and type in terminal: 
+rails server
 
 1. create session and get id
  curl -X POST  http://localhost:3000/recognizer
 
 2. send data 
- curl -X POST -F"file=@/home/user/test/data/goforward.raw" http://localhost:3000/recognizer/<session_id>
+ curl -X POST -F"file=@/home/user/test/data/goforward.raw" http://localhost:3000/recognizer/ <session_id>
 
 3. get data 
- curl  http://localhost:3000/recognizer/<session_id>
+ curl  http://localhost:3000/recognizer/ <session_id>
